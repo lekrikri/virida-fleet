@@ -7,7 +7,9 @@
   tasks:
     - name: Installer Mosquitto
       ansible.builtin.apt:
-        name: mosquitto
+        name:
+          - mosquitto
+          - mosquitto-clients
         state: present
         update_cache: true
         cache_valid_time: 3600    # ne pas relancer "apt update" si fait il y a moins d'1 h
