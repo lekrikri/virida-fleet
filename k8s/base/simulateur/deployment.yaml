@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulateur                        
+spec:
+  replicas: 1                    
+  selector:
+    matchLabels:
+      app: simulateur                     
+  template:
+    metadata:
+      labels:
+        app: simulateur                    
+    spec:
+      containers:
+        - name: simulateur                 
+          image: virida-simulateur:0.1.0               
+          resources:
+            requests:
+              cpu: 50m              
+              memory: 64Mi           
+            limits:
+              cpu: 100m             
+              memory: 128Mi         
+          securityContext:
+            runAsNonRoot: true       
+            allowPrivilegeEscalation: false   
+            readOnlyRootFilesystem: true    
