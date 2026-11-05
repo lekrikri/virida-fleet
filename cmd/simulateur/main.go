@@ -41,35 +41,33 @@ func (c *Capteur) Bouger() {
 }
 
 func main() {
-	mesure := Mesure{
-		ID:        "mesure-1",
-		Serre:     "serre-1",
-		Capteur:   "temperature",
-		Valeur:    25.5,
-		Unite:     "°C",
-		Timestamp: time.Now(),
-	}
-
-	jsonData, err := json.Marshal(mesure)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
 	serres := map[string][]*Capteur{
 		"serre-1": nouveauxCapteurs(),
 		"serre-2": nouveauxCapteurs(),
 		"serre-3": nouveauxCapteurs(),
 	}
-
-	fmt.Println(string(jsonData))
-	fmt.Println(len(serres))
-	for i := 0; i < 5; i++ {
-		for _, capteur := range serres["serre-1"] {
-			capteur.Bouger()
-			fmt.Printf("%s: %.2f %s\n", capteur.Nom, capteur.Valeur, capteur.Unite)
+	compteur := 0
+	ticker := time.NewTicker(2 * time.Second)
+	for range ticker.C {
+		for nom, capteurs := range serres {
+			for _, c := range capteurs {
+				c.Bouger() // faire bouger le capteur
+				compteur++
+				m := Mesure{
+					ID:        fmt.Sprintf("mesure-%d", compteur),
+					Serre:     nom,                            // le nom de la serre
+					Capteur:   c.Nom,                          // le nom du capteur
+					Valeur:    math.Round(c.Valeur*100) / 100, // arrondi à 2 décimales
+					Unite:     c.Unite,
+					Timestamp: time.Now(),
+				}
+				jsonData, err := json.Marshal(m)
+				if err != nil {
+					fmt.Println("Error:", err)
+					continue
+				}
+				fmt.Println(string(jsonData))
+			}
 		}
-		time.Sleep(1 * time.Second)
 	}
-
 }
