@@ -1,0 +1,31 @@
+- name: Configurer les passerelles MQTT
+  hosts: passerelles                      # (A) le groupe de ton inventaire
+  become: true                    # passer administrateur (sudo) pour installer
+  vars:
+    mqtt_port: 1883
+
+  tasks:
+    - name: Installer Mosquitto
+      ansible.builtin.apt:
+        name: mosquitto
+        state: present
+        update_cache: true
+        cache_valid_time: 3600    # ne pas relancer "apt update" si fait il y a moins d'1 h
+
+    - name: Déployer la configuration
+      ansible.builtin.template:
+        src: templates/mosquitto.conf.j2
+        dest: /etc/mosquitto/mosquitto.conf
+        mode: "0644"
+      notify: Redémarrer Mosquitto                 # (C) le nom EXACT du handler
+
+    - name: Démarrer Mosquitto
+      ansible.builtin.service:
+        name: mosquitto
+        state: started                # (D) l'état voulu : démarré
+
+  handlers:
+    - name: Redémarrer Mosquitto
+      ansible.builtin.service:
+        name: mosquitto
+        state: restarted
