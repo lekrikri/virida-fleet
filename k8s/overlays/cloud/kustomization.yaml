@@ -6,7 +6,6 @@ namespace: virida-cloud
 labels:
   - pairs:
       env: cloud
-      equipe: plateforme
     includeTemplates: true
 images:
   - name: virida-simulateur
