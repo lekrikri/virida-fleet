@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulateur
+spec:
+  template:
+    spec:
+      containers:
+        - name: simulateur
+          resources:
+            requests:
+              cpu: 25m              
+              memory: 32Mi           
+            limits:
+              cpu: 50m             
+              memory: 64Mi
