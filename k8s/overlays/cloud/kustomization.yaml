@@ -9,7 +9,7 @@ labels:
     includeTemplates: true
 images:
   - name: virida-simulateur
-    newTag: 0.3.0
+    newTag: 0.4.0
 configMapGenerator:
   - name: simulateur-config
     behavior: merge
