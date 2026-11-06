@@ -9,5 +9,5 @@ labels:
     includeTemplates: true
 images:
   - name: virida-simulateur
-    newTag: 0.1.0
+    newTag: 0.2.0
    
