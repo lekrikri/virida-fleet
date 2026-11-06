@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
+	"github.com/google/uuid"
 	"math"
 	"math/rand"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 type Mesure struct {
 	ID        string    `json:"id"`
+	Site      string    `json:"site"`
 	Serre     string    `json:"serre"`
 	Capteur   string    `json:"capteur"`
 	Valeur    float64   `json:"valeur"`
@@ -44,6 +46,11 @@ func (c *Capteur) Bouger() {
 
 func main() {
 
+	site := os.Getenv("SITE")
+	if site == "" {
+		site = "local"
+	}
+
 	broker := os.Getenv("MQTT_BROKER")
 	if broker == "" {
 		broker = "tcp://localhost:1883" // une valeur par défaut, pour tester sur ton PC : "tcp://localhost:1883"
@@ -67,15 +74,15 @@ func main() {
 		"serre-2": nouveauxCapteurs(),
 		"serre-3": nouveauxCapteurs(),
 	}
-	compteur := 0
+
 	ticker := time.NewTicker(2 * time.Second)
 	for range ticker.C {
 		for nom, capteurs := range serres {
 			for _, c := range capteurs {
 				c.Bouger() // faire bouger le capteur
-				compteur++
 				m := Mesure{
-					ID:        fmt.Sprintf("mesure-%d", compteur),
+					ID:        uuid.New().String(),
+					Site:      site,
 					Serre:     nom,                            // le nom de la serre
 					Capteur:   c.Nom,                          // le nom du capteur
 					Valeur:    math.Round(c.Valeur*100) / 100, // arrondi à 2 décimales
@@ -88,7 +95,8 @@ func main() {
 					continue
 				}
 				fmt.Fprintln(os.Stdout, string(jsonData))
-				sujet := fmt.Sprintf("virida/%s/%s", nom, c.Nom) // la serre, puis le capteur
+				sujet := fmt.Sprintf("virida/%s/%s/%s", site, nom, c.Nom)
+
 				client.Publish(sujet, 0, false, jsonData)
 			}
 		}
