@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"math"
 	"math/rand"
+	"net/http"
 	"os"
 	"time"
 )
@@ -62,6 +63,23 @@ func main() {
 		SetClientID("simulateur-" + nomPod).
 		SetConnectRetry(true) // réessayer si le broker n'est pas encore prêt
 	client := mqtt.NewClient(opts)
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	http.HandleFunc("/readyz", func(w http.ResponseWriter, r *http.Request) {
+		if client.IsConnectionOpen() { // la connexion MQTT est-elle ouverte ?
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
+	})
+	go func() {
+		if err := http.ListenAndServe(":8080", nil); err != nil {
+			fmt.Fprintln(os.Stderr, "Erreur du serveur HTTP:", err)
+			os.Exit(1)
+		}
+	}()
+
 	jeton := client.Connect()
 	jeton.Wait()
 	if err := jeton.Error(); err != nil {
