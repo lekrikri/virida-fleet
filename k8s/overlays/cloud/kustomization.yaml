@@ -9,5 +9,11 @@ labels:
     includeTemplates: true
 images:
   - name: virida-simulateur
-    newTag: 0.2.0
+    newTag: 0.3.0
+configMapGenerator:
+  - name: simulateur-config
+    behavior: merge
+    literals:
+      - SITE=cloud
+
    

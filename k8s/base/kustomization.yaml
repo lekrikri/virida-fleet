@@ -5,4 +5,9 @@ resources:
   - mosquitto/configmap.yaml
   - mosquitto/deployment.yaml
   - mosquitto/service.yaml
+configMapGenerator:
+  - name: simulateur-config
+    literals:
+      - SITE=local
+
 

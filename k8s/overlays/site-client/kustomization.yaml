@@ -9,9 +9,16 @@ labels:
     includeTemplates: true
 images:
   - name: virida-simulateur
-    newTag: 0.2.0
+    newTag: 0.3.0
 
 patches:
   - path: ressources.yaml
+
+configMapGenerator:
+  - name: simulateur-config
+    behavior: merge
+    literals:
+      - SITE=site-client
+
 
    

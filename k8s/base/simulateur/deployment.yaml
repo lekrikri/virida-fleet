@@ -14,10 +14,13 @@ spec:
     spec:
       containers:
         - name: simulateur                 
-          image: virida-simulateur:0.2.0
+          image: virida-simulateur:0.3.0
           env:
             - name: MQTT_BROKER
               value: "tcp://mosquitto:1883"
+          envFrom:
+            - configMapRef:
+                name: simulateur-config
           resources:
             requests:
               cpu: 50m              
