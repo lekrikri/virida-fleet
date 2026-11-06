@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: timescaledb
+  namespace: virida-cloud
+spec:
+  encryptedData:
+    POSTGRES_PASSWORD: AgBhNoWEC/+KkRVvXOwpdsNlAznVGS2V9b04wMSLyaJ/0XJbyufQ4SMtoF4E7nx2BIuLdv6BEziwqIEFAfn3d4046lXo7fjwQavWb4ZPeizLuN+MkvDzksmWPR9A51pjGhJnji0t/MYt81td4JWaHaLXrRK83VFG1IE4R7mejzD3KZTaXGNV0IZcoCUEEBg5KSLpnqraRNsZLQ3xGXdHnD3EIUwtB41A5+0F8Wya+fVObAH5YAMiwSY+x7ne9w9ctlx0WMbbsFkPP+uWqx0N6dtIulhES4jVLf9ni8/WcIdyYj1yYO0e9MVDgX6JgbIT++4zXW1lxqH0a49RsVTzo0T0ya/voPwO9AyzNsJKkkbTDTJ2rf2Ykah9l8pnodjdWoxAL04NF1jIjC2RmSr8i++3HGCvte1LxXrmB2zsHPOIPnSXDgNgGRol3SXoer0ZVc2BdsrH1kzulaUeeaYACeCHyUjDxaawtcL8nhXJuG38Ekcac6xFJd5VM+WZ33xHGhkILJeKnqsWFITborGbZz7A4tD3NMDOfUqb4U+hv1C0CKfXAc8U52rVzht0ziRn+/8jA744c6uJCSOpxT3kGfbXLL9w7hGFVwk3xxmMrtNiWygukfdFm3FEzRNckR4Gk85FG4RI2CZ12K7GW5A02Yuz+lOoJvdyTG72txJT4r0FDtylAZ+t8E6YbcTIu0N/UMg5odpqvWBCFou1Vil6uyOu9AJDV3yk4NuOIRWKePW5VQ==
+  template:
+    metadata:
+      name: timescaledb
+      namespace: virida-cloud

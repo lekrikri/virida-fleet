@@ -5,6 +5,9 @@ resources:
   - mosquitto/configmap.yaml
   - mosquitto/deployment.yaml
   - mosquitto/service.yaml
+  - timescaledb/service.yaml
+  - timescaledb/statefulset.yaml
+  
 configMapGenerator:
   - name: simulateur-config
     literals:

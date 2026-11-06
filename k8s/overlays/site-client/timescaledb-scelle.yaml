@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: timescaledb
+  namespace: site-client
+spec:
+  encryptedData:
+    POSTGRES_PASSWORD: AgAfljhrMokPkJ9z8Yx+2WgJ6/6XtmOOgAPHMK6ycixzN7jrMJiAn8aE3lV4gNBIDznI2PAtGGimLRIY3UIX7yu7Nkz6pXXnhi7RtgKVqsLe7QanJZxE3IDS++N89lSPO63A/UGnrd6DdoFUmlMHiuDbm4mf8gZ+azxzdHBVCL1rPp3Q5WazJ+dMj3I2OTJQpDQqqFGkTThJITVgG7TGgzKlkvloZtKKyK1Nc7L6dLhhqY0gvkuL70dKTFwQ6BCZAasdsW1lMMJgYXQHqq6TIJM7vBLP7gsq9QzixaGwSA8H0HB5WiZilUDd6aErsHAiPNxJIrNNTRSrJNucIS/yh+q+aIhgXq48+phYfl9OAtpFSEjAilYA/6Y9+vGprJ7BJC076NHlH0blH3aizayQBwX5Mx0bcAUU92ZQdotH+O02ccAKSblp/kath6/PrzXaEsTkJN/YqYktpKhv92Eu7nt7dXmIBL3Xhlso1g3H3GlR8dA9lWcPmcLM+7tbNXS1CcqqCUR3GQw42bdns+Nn8Yf3Q95WkOFdpVugzfBTd0OoHp4G2C37o3tNSRW6pCOAPLrmn8gGqoKjsHheZQPC3raE+hbcuyOpeztMN7CzaeCD1TGArpyzxjF19Uro0vbyuq/9vy4eKxQx6YVVPK7ln6lw+SUJbJoNcXhKdStcJKo92f7jddMccFpi7z19Lgj1uxPLE65NIQksxRLD9kGW5n3emfP6S6u2idEYI1cjI4AYNg==
+  template:
+    metadata:
+      name: timescaledb
+      namespace: site-client
