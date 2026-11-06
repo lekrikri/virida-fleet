@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/eclipse/paho.mqtt.golang"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -41,6 +43,25 @@ func (c *Capteur) Bouger() {
 }
 
 func main() {
+
+	broker := os.Getenv("MQTT_BROKER")
+	if broker == "" {
+		broker = "tcp://localhost:1883" // une valeur par défaut, pour tester sur ton PC : "tcp://localhost:1883"
+	}
+
+	nomPod, _ := os.Hostname() // dans Kubernetes, c'est le nom du pod
+	opts := mqtt.NewClientOptions().
+		AddBroker(broker).
+		SetClientID("simulateur-" + nomPod).
+		SetConnectRetry(true) // réessayer si le broker n'est pas encore prêt
+	client := mqtt.NewClient(opts)
+	jeton := client.Connect()
+	jeton.Wait()
+	if err := jeton.Error(); err != nil {
+		fmt.Fprintln(os.Stderr, "Erreur de connexion MQTT:", err)
+		os.Exit(1)
+	}
+
 	serres := map[string][]*Capteur{
 		"serre-1": nouveauxCapteurs(),
 		"serre-2": nouveauxCapteurs(),
@@ -63,10 +84,12 @@ func main() {
 				}
 				jsonData, err := json.Marshal(m)
 				if err != nil {
-					fmt.Println("Error:", err)
+					fmt.Fprintln(os.Stderr, "Error:", err)
 					continue
 				}
-				fmt.Println(string(jsonData))
+				fmt.Fprintln(os.Stdout, string(jsonData))
+				sujet := fmt.Sprintf("virida/%s/%s", nom, c.Nom) // la serre, puis le capteur
+				client.Publish(sujet, 0, false, jsonData)
 			}
 		}
 	}
