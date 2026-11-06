@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -66,6 +67,28 @@ SELECT create_hypertable('mesures', by_range('horodatage'), if_not_exists => TRU
 		SetClientID("ingesteur-" + nomPod).
 		SetConnectRetry(true)
 	client := mqtt.NewClient(opts)
+	http.HandleFunc("/readyz", func(w http.ResponseWriter, r *http.Request) {
+		if client.IsConnectionOpen() && pool.Ping(r.Context()) == nil {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
+	})
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	port := os.Getenv("HTTP_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	go func() {
+		if err := http.ListenAndServe(":"+port, nil); err != nil {
+			fmt.Fprintln(os.Stderr, "Erreur du serveur HTTP :", err)
+			os.Exit(1)
+		}
+	}()
+
 	jeton := client.Connect()
 	jeton.Wait()
 	if err := jeton.Error(); err != nil {
