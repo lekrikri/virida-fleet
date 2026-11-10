@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"math"
 	"math/rand"
 	"net/http"
@@ -34,6 +37,18 @@ type Capteur struct {
 	Valeur    float64
 	Variation float64
 }
+
+var (
+	mesuresPubliees = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "virida_mesures_publiees_total",
+		Help: "Nombre de mesures publiées sur MQTT.",
+	}, []string{"site", "serre", "capteur"})
+
+	valeurMesure = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "virida_mesure_valeur",
+		Help: "Dernière valeur publiée par chaque capteur.",
+	}, []string{"site", "serre", "capteur"})
+)
 
 func nouveauxCapteurs() []*Capteur {
 	return []*Capteur{
@@ -79,6 +94,10 @@ func main() {
 			w.WriteHeader(http.StatusServiceUnavailable)
 		}
 	})
+
+	// Exposer les métriques Prometheus sur /metrics
+	http.Handle("/metrics", promhttp.Handler())
+
 	go func() {
 		if err := http.ListenAndServe(":8080", nil); err != nil {
 			fmt.Fprintln(os.Stderr, "Erreur du serveur HTTP:", err)
@@ -129,6 +148,9 @@ func main() {
 					sujet := fmt.Sprintf("virida/%s/%s/%s", site, nom, c.Nom)
 
 					client.Publish(sujet, 0, false, jsonData)
+
+					mesuresPubliees.WithLabelValues(site, nom, c.Nom).Inc()
+					valeurMesure.WithLabelValues(site, nom, c.Nom).Set(m.Valeur)
 				}
 			}
 		}
