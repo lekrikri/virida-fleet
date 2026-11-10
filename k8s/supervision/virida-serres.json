@@ -1,0 +1,86 @@
+{
+  "uid": "virida-serres",
+  "title": "Virida — Serres",
+  "tags": ["virida"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": { "from": "now-30m", "to": "now" },
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Température par serre",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "virida_mesure_valeur{capteur=\"temperature\"}", "legendFormat": "{{serre}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "celsius", "decimals": 1 }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Humidité par serre",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "virida_mesure_valeur{capteur=\"humidite\"}", "legendFormat": "{{serre}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1 }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "pH par serre",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "virida_mesure_valeur{capteur=\"ph\"}", "legendFormat": "{{serre}}" }
+      ],
+      "fieldConfig": { "defaults": { "min": 5.5, "max": 7.5, "decimals": 2 }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Mesures insérées par seconde",
+      "gridPos": { "x": 12, "y": 8, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum by (site) (rate(virida_mesures_inserees_total[1m]))", "legendFormat": "{{site}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 1, "min": 0 }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Âge de la dernière mesure",
+      "description": "Rouge au-delà de 5 minutes sans nouvelle mesure : un capteur, le simulateur ou l'ingesteur est muet.",
+      "gridPos": { "x": 20, "y": 8, "w": 4, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "max(time() - virida_derniere_mesure_horodatage_secondes)", "instant": true }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 60 },
+              { "color": "red", "value": 300 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    }
+  ]
+}
