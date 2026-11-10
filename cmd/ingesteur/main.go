@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -24,6 +26,9 @@ type Mesure struct {
 
 func main() {
 	ctx := context.Background()
+
+	arret, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
 
 	// 1. Préparer le pool de connexions (ne se connecte pas encore)
 	pool, err := pgxpool.New(ctx, "") // "" = lire PGHOST, PGUSER, PGPASSWORD, PGDATABASE
@@ -83,7 +88,13 @@ func main() {
 			break
 		}
 		fmt.Fprintf(os.Stderr, "Base pas encore prête (essai %d/10), nouvel essai dans %s\n", tentative, attente)
-		time.Sleep(attente)
+		select {
+		case <-arret.Done():
+			fmt.Println("Signal reçu pendant l'attente de la base, arrêt")
+			return
+		case <-time.After(attente):
+		}
+
 		attente = min(attente*2, 15*time.Second)
 	}
 	if errBase != nil {
@@ -136,5 +147,9 @@ SELECT create_hypertable('mesures', by_range('horodatage'), if_not_exists => TRU
 
 	// 7. Attendre les mesures
 	fmt.Println("Abonné à virida/#, en attente de mesures")
-	select {}
+	<-arret.Done()
+	fmt.Println("Signal reçu, arrêt propre")
+	client.Unsubscribe("virida/#").Wait()
+	client.Disconnect(250)
+	fmt.Println("Arrêt terminé")
 }

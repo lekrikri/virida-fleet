@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
@@ -9,6 +10,8 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -46,6 +49,9 @@ func (c *Capteur) Bouger() {
 }
 
 func main() {
+
+	arret, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
 
 	site := os.Getenv("SITE")
 	if site == "" {
@@ -94,28 +100,36 @@ func main() {
 	}
 
 	ticker := time.NewTicker(2 * time.Second)
-	for range ticker.C {
-		for nom, capteurs := range serres {
-			for _, c := range capteurs {
-				c.Bouger() // faire bouger le capteur
-				m := Mesure{
-					ID:        uuid.New().String(),
-					Site:      site,
-					Serre:     nom,                            // le nom de la serre
-					Capteur:   c.Nom,                          // le nom du capteur
-					Valeur:    math.Round(c.Valeur*100) / 100, // arrondi à 2 décimales
-					Unite:     c.Unite,
-					Timestamp: time.Now(),
-				}
-				jsonData, err := json.Marshal(m)
-				if err != nil {
-					fmt.Fprintln(os.Stderr, "Error:", err)
-					continue
-				}
-				fmt.Fprintln(os.Stdout, string(jsonData))
-				sujet := fmt.Sprintf("virida/%s/%s/%s", site, nom, c.Nom)
+	for {
+		select {
+		case <-arret.Done():
+			fmt.Println("Signal reçu, arrêt propre")
+			client.Disconnect(250)
+			return
+		case <-ticker.C:
 
-				client.Publish(sujet, 0, false, jsonData)
+			for nom, capteurs := range serres {
+				for _, c := range capteurs {
+					c.Bouger() // faire bouger le capteur
+					m := Mesure{
+						ID:        uuid.New().String(),
+						Site:      site,
+						Serre:     nom,                            // le nom de la serre
+						Capteur:   c.Nom,                          // le nom du capteur
+						Valeur:    math.Round(c.Valeur*100) / 100, // arrondi à 2 décimales
+						Unite:     c.Unite,
+						Timestamp: time.Now(),
+					}
+					jsonData, err := json.Marshal(m)
+					if err != nil {
+						fmt.Fprintln(os.Stderr, "Error:", err)
+						continue
+					}
+					fmt.Fprintln(os.Stdout, string(jsonData))
+					sujet := fmt.Sprintf("virida/%s/%s/%s", site, nom, c.Nom)
+
+					client.Publish(sujet, 0, false, jsonData)
+				}
 			}
 		}
 	}
