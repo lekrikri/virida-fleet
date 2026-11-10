@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: virida-alertes
+spec:
+  groups:
+    - name: virida
+      rules:
+        - alert: ViridaCapteurMuet
+          expr: time() - virida_derniere_mesure_horodatage_secondes > ???   # 5 minutes, en secondes
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Capteur muet : {{ $labels.site }} / {{ $labels.serre }} / {{ $labels.capteur }}"
+            description: "Aucune mesure reçue depuis {{ $value | humanizeDuration }}."
+
+        - alert: ViridaAucuneInsertion
+          expr: sum by (site) (rate(virida_mesures_inserees_total[5m])) == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Plus aucune mesure insérée pour le site {{ $labels.site }}"
+            description: "Simulateur, broker, ingesteur ou base : un maillon de la chaîne est cassé."
+
+        - alert: ViridaIngesteurAbsent
+          expr: absent(virida_mesures_inserees_total)
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Aucune métrique d'insertion : l'ingesteur ne tourne pas, ou n'est pas collecté"

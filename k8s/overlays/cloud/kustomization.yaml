@@ -4,6 +4,7 @@ resources:
   - ../../base
   - timescaledb-scelle.yaml
   - podmonitor.yaml
+  - alertes.yaml
 
 namespace: virida-cloud
 labels:
