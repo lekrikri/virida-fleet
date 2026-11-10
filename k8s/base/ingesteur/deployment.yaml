@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: ingesteur                 
-          image: virida-ingesteur:0.3.0
+          image: virida-ingesteur:0.4.0
           env:
             - name: MQTT_BROKER
               value: "tcp://mosquitto:1883"
