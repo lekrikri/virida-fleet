@@ -7,7 +7,7 @@ spec:
     - name: virida
       rules:
         - alert: ViridaCapteurMuet
-          expr: time() - virida_derniere_mesure_horodatage_secondes > ???   # 5 minutes, en secondes
+          expr: time() - virida_derniere_mesure_horodatage_secondes > 300   # 5 minutes, en secondes
           for: 1m
           labels:
             severity: warning
