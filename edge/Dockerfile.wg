@@ -1,0 +1,5 @@
+FROM alpine:3.20 
+RUN apk add --no-cache wireguard-tools iproute2 iputils-ping
+CMD ["sh", "-c", "wg-quick up wg0 && tail -f /dev/null"]
+
+

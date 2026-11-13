@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: virida-edge
+resources:
+  - namespace.yaml
+  - ../../base
+patches:
+  - path: retirer-donnees.yaml
+  - path: mosquitto-centre.yaml
+  - path: simulateur-edge.yaml
+images:
+  - name: virida-simulateur
+    newTag: 0.6.0
+configMapGenerator:
+  - name: simulateur-config
+    behavior: merge
+    literals:
+      - SITE=serre-1
+
+

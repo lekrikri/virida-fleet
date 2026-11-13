@@ -4,3 +4,4 @@ kubeconfig*
 *.key
 *.pem
 .env
+edge/secrets/
